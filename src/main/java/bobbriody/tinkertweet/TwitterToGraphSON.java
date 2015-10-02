@@ -190,10 +190,17 @@ public class TwitterToGraphSON
 
     public static void main(String[] args) throws Exception
     {
+        File config = new File("config.properties");
+        if (!config.exists() || config.isDirectory())
+        {
+            System.err.println("Error: Expected to find ./config.properties file. Perhaps you should copy config.properties.template and fill in your Twitter API info.");
+            System.exit(1);
+        }
+
         try
         {
             Properties props = new Properties();
-            props.load(new FileInputStream("config.properties"));
+            props.load(new FileInputStream(config));
 
             new TwitterToGraphSON(
                     props.getProperty("consumerKey"),
