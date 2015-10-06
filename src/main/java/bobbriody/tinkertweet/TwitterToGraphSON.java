@@ -31,7 +31,7 @@ public class TwitterToGraphSON
     }
 
     // Twitter properties to save
-    static final String[] props = {"name", "location", "screen_name", "description"};
+    static final String[] props = {"name", "location", "screen_name", "description", "profile_image_url", "url", "created_at"};
 
     static final String outputPath = "tinkertweet.json";
 
@@ -162,12 +162,20 @@ public class TwitterToGraphSON
         // create seed vertex
         Vertex seed = getOrCreate(seedJson.getLong("id"));
 
-        // get following ids
+        // get friends (following)
         JSONObject followingResp = (JSONObject) request("friends/ids.json?screen_name=" + seedScreenName, Type.object);
         JSONArray ids = followingResp.getJSONArray("ids");
         for (int ii = 0; ii < ids.length(); ii++)
         {
             seed.addEdge("follows", getOrCreate(ids.getLong(ii)));
+        }
+
+        // get followers
+        JSONObject followersResp = (JSONObject) request("followers/ids.json?screen_name=" + seedScreenName, Type.object);
+        ids = followersResp.getJSONArray("ids");
+        for (int ii = 0; ii < ids.length(); ii++)
+        {
+            getOrCreate(ids.getLong(ii)).addEdge("follows", seed);
         }
     }
 
